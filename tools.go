@@ -13,12 +13,23 @@ import (
 )
 
 // ToString return JSON representation of interface
-func ToString(in interface{}) string {
+func ToJSON(in interface{}) string {
 	b, err := json.Marshal(in)
 	if err != nil {
 		panic(err)
 	}
 	return string(b)
+}
+
+func asStringSlice(i interface{}) []string {
+	ret := []string{}
+	if i == nil {
+		return ret
+	}
+	for _, v := range i.([]interface{}) {
+		ret = append(ret, v.(string))
+	}
+	return ret
 }
 
 // ContainsString searches slice for string

@@ -10,6 +10,8 @@ import (
 // ^---$ Three dashes as only thing on line again
 var yamlregexp = regexp.MustCompile("(?ms)^---$.*^---$")
 
+var tomlregexp = regexp.MustCompile("(?ms)^+++$.*^+++$")
+
 // HasYAMLFrontmatter returns true frontmatter is present
 func HasYAMLFrontmatter(b []byte) bool {
 	return yamlregexp.Match(b)

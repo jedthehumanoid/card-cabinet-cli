@@ -27,11 +27,22 @@ func ReadCardFile(path string) (Card, error) {
 	}
 	frontmatter := string(GetYAMLFrontmatter(contents))
 	card.Contents = strings.TrimPrefix(string(contents), frontmatter)
+	card.Contents = strings.TrimSpace(card.Contents)
 	frontmatter = strings.TrimSpace(frontmatter)
 	frontmatter = strings.Trim(frontmatter, "---")
 
 	err = yaml.Unmarshal([]byte(frontmatter), &card.Properties)
 	return card, err
+}
+
+func MarshalFrontmatter(card Card) string {
+	b, _ := yaml.Marshal(card.Properties)
+	ret := ""
+	frontmatter := strings.TrimSpace(string(b))
+	if frontmatter != "{}" {
+		ret = "---\n" + frontmatter + "\n---"
+	}
+	return ret
 }
 
 // WriteCardFile writes a card to file
