@@ -122,35 +122,40 @@ func main() {
 	case "boards", "b":
 		listBoards(boards)
 	case "list":
-		listBoard(boards, filter)
+		listBoard(getBoard(boards, filter))
 	case "cat", "c":
-		catCards(boards, filter)
+		catCards(getBoard(boards, filter))
 	case "filename", "f":
-		names(boards, filter, dir)
+		names(getBoard(boards, filter), dir)
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}
 
 }
 
-func listBoard(boards []cardcabinet.Board, filter string) {
-	for _, board := range boards {
-		if board.Title == filter {
-			i := 1
-			for _, deck := range board.Decks {
-				if deck.Title != "" {
-					fmt.Println(deck.Title)
-					fmt.Println(dash(len(deck.Title)))
-
-				}
-				for _, card := range deck.Cards {
-					fmt.Printf("%d) ", i)
-					listCard(card)
-					i++
-				}
-				fmt.Println()
-			}
+func getBoard(boards []cardcabinet.Board, board string) cardcabinet.Board {
+	for _, b := range boards {
+		if b.Title == board {
+			return b
 		}
+	}
+	return cardcabinet.Board{}
+}
+
+func listBoard(board cardcabinet.Board) {
+	i := 1
+	for _, deck := range board.Decks {
+		if deck.Title != "" {
+			fmt.Println(deck.Title)
+			fmt.Println(dash(len(deck.Title)))
+
+		}
+		for _, card := range deck.Cards {
+			fmt.Printf("%d) ", i)
+			listCard(card)
+			i++
+		}
+		fmt.Println()
 	}
 }
 
@@ -170,32 +175,25 @@ func dash(len int) string {
 	return ret
 }
 
-func catCards(boards []cardcabinet.Board, filter string) {
-	for _, board := range boards {
-		if board.Title == filter {
-			for _, deck := range board.Decks {
-				for _, card := range deck.Cards {
-					fmt.Println("\n" + card.Title)
-					fmt.Println(dash(len(card.Title)))
-					fmt.Println(gray + cardcabinet.MarshalFrontmatter(card) + reset)
-					fmt.Println(card.Contents)
-				}
-			}
+func catCards(board cardcabinet.Board) {
+	for _, deck := range board.Decks {
+		for _, card := range deck.Cards {
+			fmt.Println("\n" + card.Title)
+			fmt.Println(dash(len(card.Title)))
+			fmt.Println(gray + cardcabinet.MarshalFrontmatter(card) + reset)
+			fmt.Println(card.Contents)
 		}
 	}
 }
 
-func names(boards []cardcabinet.Board, filter string, dir string) {
-	for _, board := range boards {
-		if board.Title == filter {
-			for _, deck := range board.Decks {
-				for _, card := range deck.Cards {
-					fmt.Printf("%s%s\n", dir, card.Title)
-				}
-			}
+func names(board cardcabinet.Board, dir string) {
+	for _, deck := range board.Decks {
+		for _, card := range deck.Cards {
+			fmt.Printf("%s%s\n", dir, card.Title)
 		}
 	}
 }
+
 func listCard(card cardcabinet.Card) {
 	fmt.Printf("%s", card.Title)
 	if card.Contents != "" {
