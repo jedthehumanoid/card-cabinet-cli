@@ -1,6 +1,7 @@
 package main
 
 import (
+	"card-cabinet"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"io/ioutil"
@@ -39,8 +40,9 @@ func getArguments() (string, string, []string, string, []string) {
 	for _, arg := range arguments {
 		if strings.HasPrefix(arg, "@") ||
 			strings.HasPrefix(arg, "+") ||
-			strings.HasPrefix(arg, "/") {
-			filter = arg
+			strings.HasPrefix(arg, "/") ||
+			strings.HasPrefix(arg, ":") {
+			filter = arg[1:]
 		} else {
 			temp = append(temp, arg)
 		}
@@ -83,56 +85,55 @@ func loadConfig(file string) Config {
 	if err != nil {
 		panic(err)
 	}
-
 	return config
 }
 
-func getLabels(cards []Card) []string {
-	labels := []string{}
-	for _, card := range cards {
-		for _, label := range asStringSlice(card.Properties["labels"]) {
-			if !ContainsString(labels, "+"+label) {
-				labels = append(labels, "+"+label)
-			}
-		}
-	}
-	return labels
-}
+func getLabels(cards []cardcabinet.Card) []cardcabinet.Board {
+	boards := []cardcabinet.Board{}
+	for _, label := range cardcabinet.GetLabels(cards) {
+		deck := cardcabinet.Deck{}
+		deck.Title = label
+		deck.Labels = []string{label}
 
-func filterLabel(cards []Card, label string) []Card {
-	ret := []Card{}
-	for _, card := range cards {
-		labels := asStringSlice(card.Properties["labels"])
+		board := cardcabinet.Board{}
+		board.Title = "+" + label
+		board.Decks = append(board.Decks, deck)
 
-		if ContainsString(labels, label) {
-			ret = append(ret, card)
-		}
+		boards = append(boards, board)
 	}
-	return ret
+	return boards
 }
 
 func main() {
-
 	config := loadConfig("cabinet.toml")
 	filter, command, _, selected, _ := getArguments()
 
 	dir := "."
-
 	if config.Src != "" {
 		dir = config.Src
 	}
-
 	dir = filepath.Clean(dir) + "/"
 
-	cards := ReadCardDir(dir)
-	boards := ReadBoards(dir)
+	cards := cardcabinet.ReadCards(dir)
+	boards := cardcabinet.ReadBoards(dir)
+
 	boards = append(boards, getLabels(cards)...)
 
-	if filter != "" {
-		switch filter[0] {
-		case '+':
-			cards = filterLabel(cards, filter[1:])
+	deck := cardcabinet.Deck{}
+	deck.Cards = cards
+
+	board := cardcabinet.Board{}
+	board.Decks = append(board.Decks, deck)
+	boards = append(boards, board)
+
+	for i, board := range boards {
+		for i, deck := range board.Decks {
+			if len(deck.Labels) > 0 {
+				deck.Cards = cardcabinet.FilterLabels(cards, deck.Labels)
+			}
+			board.Decks[i] = deck
 		}
+		boards[i] = board
 	}
 
 	if selected != "" {
@@ -143,38 +144,78 @@ func main() {
 	}
 
 	switch command {
-	case "boards":
-		for _, board := range boards {
-			fmt.Println(board)
-		}
-
+	case "boards", "b":
+		listBoards(boards)
 	case "list":
-		for i, card := range cards {
-			fmt.Printf("%d) %s", i+1, prettyTitle(card.Title))
-			if card.Contents != "" {
-				fmt.Print(" []")
-			}
-			fmt.Print(gray)
-			for _, label := range asStringSlice(card.Properties["labels"]) {
-				fmt.Printf(" [%s]", label)
-			}
-			fmt.Println(reset)
-		}
+		listBoard(boards, filter)
 	case "cat", "c":
-		for _, card := range cards {
-			fmt.Println("\n\n\n" + card.Title)
-			fmt.Println(MarshalFrontmatter(card))
-			fmt.Println(card.Contents)
-		}
+		catCards(cards)
 	case "filename", "f":
-		for _, card := range cards {
-			fmt.Printf("%s%s\n", dir, card.Title)
+		names(cards, dir)
+	default:
+		fmt.Printf("Unknown command: %s\n", command)
+	}
+
+}
+
+func listBoard(boards []cardcabinet.Board, filter string) {
+	for _, board := range boards {
+		if board.Title == filter {
+			i := 1
+			for _, deck := range board.Decks {
+				if deck.Title != "" {
+					fmt.Println(deck.Title)
+					fmt.Println(dash(len(deck.Title)))
+
+				}
+				for _, card := range deck.Cards {
+					fmt.Printf("%d) ", i)
+					listCard(card)
+					i++
+				}
+				fmt.Println()
+			}
+		}
+	}
+}
+func listBoards(boards []cardcabinet.Board) {
+	for _, board := range boards {
+		if board.Title != "" {
+			fmt.Println(board.Title)
 		}
 	}
 }
 
-func prettyTitle(s string) string {
-	s = strings.ToUpper(s[:1]) + s[1:]
-	s = strings.Replace(s, "-", " ", -1)
-	return strings.TrimSuffix(s, ".md")
+func dash(len int) string {
+	ret := ""
+	for i := 0; i < len; i++ {
+		ret += "-"
+	}
+	return ret
+}
+
+func catCards(cards []cardcabinet.Card) {
+	for _, card := range cards {
+		fmt.Println("\n\n\n" + card.Title)
+		fmt.Println(cardcabinet.MarshalFrontmatter(card))
+		fmt.Println(card.Contents)
+	}
+}
+
+func names(cards []cardcabinet.Card, dir string) {
+	for _, card := range cards {
+		fmt.Printf("%s%s\n", dir, card.Title)
+	}
+}
+func listCard(card cardcabinet.Card) {
+	fmt.Printf("%s", card.Title)
+	if card.Contents != "" {
+		fmt.Print(" []")
+	}
+	fmt.Print(gray)
+	for _, label := range asStringSlice(card.Properties["labels"]) {
+		fmt.Printf(" [%s]", label)
+	}
+	fmt.Println(reset)
+
 }
