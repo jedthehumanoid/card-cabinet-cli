@@ -2,6 +2,7 @@ package main
 
 import (
 	"card-cabinet"
+	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"io/ioutil"
@@ -113,34 +114,28 @@ func main() {
 		dir = config.Src
 	}
 	dir = filepath.Clean(dir) + "/"
-
-	cards := cardcabinet.ReadCards(dir)
-	boards := cardcabinet.ReadBoards(dir)
-
-	boards = append(boards, getLabels(cards)...)
-
-	deck := cardcabinet.Deck{}
-	deck.Cards = cards
-
-	board := cardcabinet.Board{}
-	board.Decks = append(board.Decks, deck)
-	boards = append(boards, board)
-
-	for i, board := range boards {
-		for i, deck := range board.Decks {
-			if len(deck.Labels) > 0 {
-				deck.Cards = cardcabinet.FilterLabels(cards, deck.Labels)
-			}
-			board.Decks[i] = deck
-		}
-		boards[i] = board
-	}
+	boards := cardcabinet.ReadDir(dir)
 
 	if selected != "" {
-		i, err := strconv.Atoi(selected)
-		if err == nil && i <= len(cards) {
-			cards = cards[i-1 : i]
+		num, err := strconv.Atoi(selected)
+		if err == nil {
+			for i, board := range boards {
+				if board.Title == filter {
+					id := 1
+					for _, deck := range board.Decks {
+						for _, card := range deck.Cards {
+							if id == num {
+								deck.Cards = []cardcabinet.Card{card}
+							}
+							id++
+						}
+						board.Decks = []cardcabinet.Deck{deck}
+					}
+					boards[i] = board
+				}
+			}
 		}
+
 	}
 
 	switch command {
@@ -149,7 +144,7 @@ func main() {
 	case "list":
 		listBoard(boards, filter)
 	case "cat", "c":
-		catCards(cards)
+		catCards(boards, filter)
 	case "filename", "f":
 		names(boards, filter, dir)
 	default:
@@ -195,11 +190,17 @@ func dash(len int) string {
 	return ret
 }
 
-func catCards(cards []cardcabinet.Card) {
-	for _, card := range cards {
-		fmt.Println("\n\n\n" + card.Title)
-		fmt.Println(cardcabinet.MarshalFrontmatter(card))
-		fmt.Println(card.Contents)
+func catCards(boards []cardcabinet.Board, filter string) {
+	for _, board := range boards {
+		if board.Title == filter {
+			for _, deck := range board.Decks {
+				for _, card := range deck.Cards {
+					fmt.Println("\n\n\n" + card.Title)
+					fmt.Println(cardcabinet.MarshalFrontmatter(card))
+					fmt.Println(card.Contents)
+				}
+			}
+		}
 	}
 }
 
@@ -225,4 +226,9 @@ func listCard(card cardcabinet.Card) {
 	}
 	fmt.Println(reset)
 
+}
+
+func toJSON(i interface{}) string {
+	b, _ := json.MarshalIndent(i, " ", "   ")
+	return string(b)
 }
