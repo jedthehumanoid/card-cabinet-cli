@@ -151,7 +151,7 @@ func main() {
 	case "cat", "c":
 		catCards(cards)
 	case "filename", "f":
-		names(cards, dir)
+		names(boards, filter, dir)
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}
@@ -178,6 +178,7 @@ func listBoard(boards []cardcabinet.Board, filter string) {
 		}
 	}
 }
+
 func listBoards(boards []cardcabinet.Board) {
 	for _, board := range boards {
 		if board.Title != "" {
@@ -202,9 +203,15 @@ func catCards(cards []cardcabinet.Card) {
 	}
 }
 
-func names(cards []cardcabinet.Card, dir string) {
-	for _, card := range cards {
-		fmt.Printf("%s%s\n", dir, card.Title)
+func names(boards []cardcabinet.Board, filter string, dir string) {
+	for _, board := range boards {
+		if board.Title == filter {
+			for _, deck := range board.Decks {
+				for _, card := range deck.Cards {
+					fmt.Printf("%s%s\n", dir, card.Title)
+				}
+			}
+		}
 	}
 }
 func listCard(card cardcabinet.Card) {
