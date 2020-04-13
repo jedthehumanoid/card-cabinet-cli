@@ -20,12 +20,12 @@ type Config struct {
 	Src string `toml:"src"`
 }
 
-func getArguments() (string, string, []string, string, []string) {
+func getArguments() (string, string, []string, int, []string) {
 	filter := ""
 	command := ""
 	arguments := []string{}
 	flags := []string{}
-	selected := ""
+	selected := 0
 
 	// Extract flags
 	for _, arg := range os.Args[1:] {
@@ -53,9 +53,9 @@ func getArguments() (string, string, []string, string, []string) {
 	// Extract selected
 	temp = []string{}
 	for _, arg := range arguments {
-		_, err := strconv.ParseInt(arg, 10, 32)
+		num, err := strconv.Atoi(arg)
 		if err == nil {
-			selected = arg
+			selected = num
 		} else {
 			temp = append(temp, arg)
 		}
@@ -89,22 +89,6 @@ func loadConfig(file string) Config {
 	return config
 }
 
-func getLabels(cards []cardcabinet.Card) []cardcabinet.Board {
-	boards := []cardcabinet.Board{}
-	for _, label := range cardcabinet.GetLabels(cards) {
-		deck := cardcabinet.Deck{}
-		deck.Title = label
-		deck.Labels = []string{label}
-
-		board := cardcabinet.Board{}
-		board.Title = "+" + label
-		board.Decks = append(board.Decks, deck)
-
-		boards = append(boards, board)
-	}
-	return boards
-}
-
 func main() {
 	config := loadConfig("cabinet.toml")
 	filter, command, _, selected, _ := getArguments()
@@ -116,26 +100,22 @@ func main() {
 	dir = filepath.Clean(dir) + "/"
 	boards := cardcabinet.ReadDir(dir)
 
-	if selected != "" {
-		num, err := strconv.Atoi(selected)
-		if err == nil {
-			for i, board := range boards {
-				if board.Title == filter {
-					id := 1
-					for _, deck := range board.Decks {
-						for _, card := range deck.Cards {
-							if id == num {
-								deck.Cards = []cardcabinet.Card{card}
-							}
-							id++
+	if selected != 0 {
+		for i, board := range boards {
+			if board.Title == filter {
+				id := 1
+				for _, deck := range board.Decks {
+					for _, card := range deck.Cards {
+						if id == selected {
+							deck.Cards = []cardcabinet.Card{card}
 						}
-						board.Decks = []cardcabinet.Deck{deck}
+						id++
 					}
-					boards[i] = board
+					board.Decks = []cardcabinet.Deck{deck}
 				}
+				boards[i] = board
 			}
 		}
-
 	}
 
 	switch command {
@@ -195,8 +175,9 @@ func catCards(boards []cardcabinet.Board, filter string) {
 		if board.Title == filter {
 			for _, deck := range board.Decks {
 				for _, card := range deck.Cards {
-					fmt.Println("\n\n\n" + card.Title)
-					fmt.Println(cardcabinet.MarshalFrontmatter(card))
+					fmt.Println("\n" + card.Title)
+					fmt.Println(dash(len(card.Title)))
+					fmt.Println(gray + cardcabinet.MarshalFrontmatter(card) + reset)
 					fmt.Println(card.Contents)
 				}
 			}
