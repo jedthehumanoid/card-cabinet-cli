@@ -24,6 +24,33 @@ func ToJSON(in interface{}) string {
 	return string(b)
 }
 
+func getColumns() int {
+
+	cmd := exec.Command("tput", "cols")
+	columns, _ := cmd.Output()
+	ret, _ := strconv.Atoi(strings.TrimSpace(string(columns)))
+	return ret
+}
+
+func splitlen(s string, length int) []string {
+	ret := []string{}
+	for len(s) > length {
+		ret = append(ret, s[:length])
+		s = s[length:]
+	}
+
+	ret = append(ret, s)
+	return ret
+}
+
+func fill(c string, len int) string {
+	ret := ""
+	for i := 0; i < len; i++ {
+		ret += c
+	}
+	return ret
+}
+
 func asStringSlice(i interface{}) []string {
 	ret := []string{}
 	if i == nil {

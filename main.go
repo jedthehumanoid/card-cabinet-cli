@@ -2,7 +2,6 @@ package main
 
 import (
 	"card-cabinet"
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -138,15 +137,21 @@ func listBoards(boards []cardcabinet.Board) {
 	}
 }
 
-func dash(len int) string {
-	ret := ""
-	for i := 0; i < len; i++ {
-		ret += "-"
+func edit(board cardcabinet.Board, dir string) {
+	args := []string{}
+	for _, deck := range board.Decks {
+		for _, card := range deck.Cards {
+			args = append(args, dir+card)
+		}
 	}
-	return ret
+
+	cmd := exec.Command("emacs", args...)
+	cmd.Start()
 }
 
 func catCards(board cardcabinet.Board) {
+	columns := getColumns()
+	fmt.Println()
 	for _, deck := range board.Decks {
 		for _, card := range deck.Cards {
 			fmt.Println("\n" + card.Title)
@@ -160,25 +165,29 @@ func catCards(board cardcabinet.Board) {
 func names(board cardcabinet.Board, dir string) {
 	for _, deck := range board.Decks {
 		for _, card := range deck.Cards {
-			fmt.Printf("%s%s\n", dir, card.Title)
+			fmt.Printf("%s%s\n", dir, card)
 		}
 	}
 }
 
+func getCard(cards []cardcabinet.Card, title string) cardcabinet.Card {
+	for _, card := range cards {
+		if card.Title == title {
+			return card
+		}
+	}
+	return cardcabinet.Card{}
+}
+
 func listCard(card cardcabinet.Card) {
+
 	fmt.Printf("%s", card.Title)
 	if card.Contents != "" {
-		fmt.Print(" []")
+		fmt.Print(yellow + " \u2261" + reset)
 	}
 	fmt.Print(gray)
 	for _, label := range asStringSlice(card.Properties["labels"]) {
 		fmt.Printf(" [%s]", label)
 	}
 	fmt.Println(reset)
-
-}
-
-func toJSON(i interface{}) string {
-	b, _ := json.MarshalIndent(i, " ", "   ")
-	return string(b)
 }
