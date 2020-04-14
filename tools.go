@@ -2,14 +2,17 @@ package main
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
-	"regexp"
-	"strings"
-	"unicode"
-
+	"github.com/BurntSushi/toml"
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
+	"io/ioutil"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"regexp"
+	"strconv"
+	"strings"
+	"unicode"
 )
 
 // ToString return JSON representation of interface
@@ -30,6 +33,30 @@ func asStringSlice(i interface{}) []string {
 		ret = append(ret, v.(string))
 	}
 	return ret
+}
+
+func extractPrefix(list []string, prefix string) ([]string, []string) {
+	normal := []string{}
+	prefixed := []string{}
+
+	for _, arg := range list {
+		if strings.HasPrefix(arg, prefix) {
+			prefixed = append(prefixed, arg)
+		} else {
+			normal = append(normal, arg)
+		}
+	}
+	return normal, prefixed
+}
+
+func loadToml(file string, i interface{}) error {
+	d, err := ioutil.ReadFile(file)
+	if err != nil {
+		return err
+	}
+
+	_, err = toml.Decode(string(d), i)
+	return err
 }
 
 // ContainsString searches slice for string

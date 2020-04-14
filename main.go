@@ -4,8 +4,6 @@ import (
 	"card-cabinet"
 	"encoding/json"
 	"fmt"
-	"github.com/BurntSushi/toml"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -21,37 +19,19 @@ type Config struct {
 }
 
 func getArguments() (string, string, []string, int, []string) {
+	command := defaultcommand
 	filter := ""
-	command := ""
-	arguments := []string{}
-	flags := []string{}
 	selected := 0
 
-	// Extract flags
-	for _, arg := range os.Args[1:] {
-		if strings.HasPrefix(arg, "-") {
-			flags = append(flags, arg)
-		} else {
-			arguments = append(arguments, arg)
-		}
-	}
+	arguments, flags := extractPrefix(os.Args[1:], "-")
+	arguments, filters := extractPrefix(arguments, ":")
 
-	// Extract filter
-	temp := []string{}
-	for _, arg := range arguments {
-		if strings.HasPrefix(arg, "@") ||
-			strings.HasPrefix(arg, "+") ||
-			strings.HasPrefix(arg, "/") ||
-			strings.HasPrefix(arg, ":") {
-			filter = arg[1:]
-		} else {
-			temp = append(temp, arg)
-		}
+	if len(filters) > 0 {
+		filter = filters[0][1:]
 	}
-	arguments = temp
 
 	// Extract selected
-	temp = []string{}
+	temp := []string{}
 	for _, arg := range arguments {
 		num, err := strconv.Atoi(arg)
 		if err == nil {
@@ -62,29 +42,20 @@ func getArguments() (string, string, []string, int, []string) {
 	}
 	arguments = temp
 
-	if len(arguments) == 0 {
-		command = defaultcommand
-	} else {
+	if len(arguments) > 0 {
 		command = arguments[0]
 		arguments = arguments[1:]
 	}
 
+	//fmt.Println("filter:", filter, "command:", command, "arguments:", arguments, "selected:", selected, "flags:", flags)
 	return filter, command, arguments, selected, flags
 }
 
 func loadConfig(file string) Config {
 	var config Config
-
-	d, err := ioutil.ReadFile(file)
+	err := loadToml(file, &config)
 	if err != nil {
-		fmt.Println("no configuration file")
-		return config
-	}
-
-	_, err = toml.Decode(string(d), &config)
-
-	if err != nil {
-		panic(err)
+		fmt.Println("Couldn't load configuration file")
 	}
 	return config
 }
