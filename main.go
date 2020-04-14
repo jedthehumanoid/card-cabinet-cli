@@ -4,18 +4,23 @@ import (
 	"card-cabinet"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
 
 const defaultcommand = "list"
-const gray = "\033[38;2;127;127;127m"
+const gray = "\033[38;2;100;100;100m"
+const darkgray = "\033[38;2;50;50;50m"
+const yellow = "\033[38;2;250;189;47m"
 const reset = "\033[0m"
 
 type Config struct {
 	Src string `toml:"src"`
 }
+
+var cards []cardcabinet.Card
 
 func getArguments() (string, string, []string, int, []string) {
 	command := defaultcommand
@@ -68,7 +73,8 @@ func main() {
 		dir = config.Src
 	}
 	dir = filepath.Clean(dir) + "/"
-	boards := cardcabinet.ReadDir(dir)
+	var boards []cardcabinet.Board
+	cards, boards = cardcabinet.ReadDir(dir)
 
 	if selected != 0 {
 		for i, board := range boards {
@@ -77,39 +83,37 @@ func main() {
 				for _, deck := range board.Decks {
 					for _, card := range deck.Cards {
 						if id == selected {
-							deck.Cards = []cardcabinet.Card{card}
+							deck.Cards = []string{card}
+							board.Decks = []cardcabinet.Deck{deck}
 						}
 						id++
 					}
-					board.Decks = []cardcabinet.Deck{deck}
 				}
 				boards[i] = board
 			}
 		}
 	}
 
+	board := cardcabinet.GetBoard(boards, filter)
+
 	switch command {
 	case "boards", "b":
 		listBoards(boards)
 	case "list":
-		listBoard(getBoard(boards, filter))
+		listBoard(board)
 	case "cat", "c":
-		catCards(getBoard(boards, filter))
+		catCards(board)
 	case "filename", "f":
-		names(getBoard(boards, filter), dir)
+		names(board, dir)
+	case "addlabel":
+		fmt.Println("add label")
+	case "removelabel":
+		fmt.Println("remove label")
+	case "edit", "e":
+		edit(board, dir)
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}
-
-}
-
-func getBoard(boards []cardcabinet.Board, board string) cardcabinet.Board {
-	for _, b := range boards {
-		if b.Title == board {
-			return b
-		}
-	}
-	return cardcabinet.Board{}
 }
 
 func listBoard(board cardcabinet.Board) {
@@ -117,12 +121,12 @@ func listBoard(board cardcabinet.Board) {
 	for _, deck := range board.Decks {
 		if deck.Title != "" {
 			fmt.Println(deck.Title)
-			fmt.Println(dash(len(deck.Title)))
+			fmt.Println(gray + fill("\u2500", len(deck.Title)) + reset)
 
 		}
 		for _, card := range deck.Cards {
 			fmt.Printf("%d) ", i)
-			listCard(card)
+			listCard(getCard(cards, card))
 			i++
 		}
 		fmt.Println()
@@ -153,11 +157,24 @@ func catCards(board cardcabinet.Board) {
 	columns := getColumns()
 	fmt.Println()
 	for _, deck := range board.Decks {
-		for _, card := range deck.Cards {
-			fmt.Println("\n" + card.Title)
-			fmt.Println(dash(len(card.Title)))
-			fmt.Println(gray + cardcabinet.MarshalFrontmatter(card) + reset)
-			fmt.Println(card.Contents)
+		for _, title := range deck.Cards {
+			card := getCard(cards, title)
+			fmt.Println(darkgray + "\u250c" + fill("\u2500", columns-2) + "\u2510" + reset)
+			fmt.Println(darkgray + "\u2502 " + reset + card.Title)
+			fmt.Println(darkgray + "\u251c" + fill("\u2500", columns-2) + "\u2524" + reset)
+			if cardcabinet.MarshalFrontmatter(card, false) != "" {
+				for _, line := range strings.Split(cardcabinet.MarshalFrontmatter(card, false), "\n") {
+					fmt.Println(darkgray + "\u2502 " + gray + line + reset)
+				}
+			}
+			if card.Contents != "" {
+				for _, line := range strings.Split(card.Contents, "\n") {
+					for _, line := range splitlen(line, columns-2) {
+						fmt.Println(darkgray + "\u2502 " + reset + line)
+					}
+				}
+			}
+			fmt.Println(darkgray + "\u2514" + fill("\u2500", columns-2) + "\u2518" + reset)
 		}
 	}
 }
