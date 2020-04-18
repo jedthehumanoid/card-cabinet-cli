@@ -6,8 +6,7 @@ Example commands:
 
 - List all cards/boards
 - List cards by board
-- Print all cards
-- Add/remove labels
+- Print all cards by board
 
 ## Non goals
 
