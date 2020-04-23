@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 const defaultcommand = "list"
@@ -67,28 +68,33 @@ func main() {
 		config.Src = "."
 	}
 	config.Src = filepath.Clean(config.Src) + "/"
+	files := cardcabinet.FindFiles(config.Src)
 
-	cards, boards := cardcabinet.ReadDir(config.Src)
+	cards := cardcabinet.ReadCards(files)
+	boards := cardcabinet.ReadBoards(files)
 
-	if selected != 0 {
-		for i, board := range boards {
-			if board.Title == filter {
-				id := 1
-				for _, deck := range board.Decks {
-					for _, card := range deck.Cards {
-						if id == selected {
-							deck.Cards = []string{card}
-							board.Decks = []cardcabinet.Deck{deck}
-						}
-						id++
-					}
-				}
-				boards[i] = board
-			}
-		}
+	for i, _ := range cards {
+		cards[i].Title = strings.TrimPrefix(cards[i].Title, config.Src)
+	}
+
+	for i, _ := range boards {
+		boards[i].Title = strings.TrimPrefix(boards[i].Title, config.Src)
 	}
 
 	board := cardcabinet.GetBoard(boards, filter)
+	board = board.Get(cards)
+	if selected != 0 {
+		id := 1
+		for _, deck := range board.Decks {
+			for _, card := range deck.Cards {
+				if id == selected {
+					deck.Cards = []string{card}
+					board.Decks = []cardcabinet.Deck{deck}
+				}
+				id++
+			}
+		}
+	}
 
 	switch command {
 	case "boards", "b":
