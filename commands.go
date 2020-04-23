@@ -59,8 +59,8 @@ func catCards(cards []cardcabinet.Card, board cardcabinet.Board) {
 			fmt.Println(darkgray + "\u250c" + fill("\u2500", columns-2) + reset)
 			fmt.Println(darkgray + "\u2502 " + yellow + card.Title + reset)
 			fmt.Println(darkgray + "\u251c" + fill("\u2500", columns-2) + reset)
-			if cardcabinet.MarshalFrontmatter(card, false) != "" {
-				for _, line := range strings.Split(cardcabinet.MarshalFrontmatter(card, false), "\n") {
+			if card.MarshalFrontmatter(false) != "" {
+				for _, line := range strings.Split(card.MarshalFrontmatter(false), "\n") {
 					fmt.Println(darkgray + "\u2502 " + gray + line + reset)
 				}
 			}
