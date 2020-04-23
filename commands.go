@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"github.com/jedthehumanoid/card-cabinet"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
-func listBoard(cards []cardcabinet.Card, board cardcabinet.Board) {
+func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config) {
 	i := 1
 	for _, deck := range board.Decks {
 		if deck.Title != "" {
@@ -19,7 +20,7 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board) {
 			card, err := cardcabinet.GetCard(cards, title)
 			if err == nil {
 				fmt.Printf("%d) ", i)
-				listCard(card)
+				listCard(card, config)
 				i++
 			}
 		}
@@ -84,13 +85,14 @@ func names(board cardcabinet.Board, config Config) {
 	}
 }
 
-func listCard(card cardcabinet.Card) {
+func listCard(card cardcabinet.Card, config Config) {
 	tokens := strings.Split(card.Title, "/")
 
 	p := strings.Join(tokens[:len(tokens)-1], "/")
 	if p != "" {
 		p = gray + "[/" + p + "] " + reset
 	}
+
 	title := tokens[len(tokens)-1]
 
 	title = FromSlug(title)
@@ -100,9 +102,31 @@ func listCard(card cardcabinet.Card) {
 	if card.Contents != "" {
 		fmt.Print(yellow + " \u2261" + reset)
 	}
-	fmt.Print(gray)
+
 	for _, label := range asStringSlice(card.Properties["labels"]) {
+		c, hascolor := config.Colors[label]
+		if hascolor {
+			fmt.Printf(color(c))
+		} else {
+			fmt.Printf(gray)
+		}
 		fmt.Printf(" [%s]", label)
 	}
 	fmt.Println(reset)
+}
+
+func color(hex string) string {
+	r := hex[0:2]
+	g := hex[2:4]
+	b := hex[4:6]
+
+	red, err := strconv.ParseInt(r, 16, 64)
+	if err != nil {
+		panic(err)
+	}
+	green, err := strconv.ParseInt(g, 16, 64)
+	blue, err := strconv.ParseInt(b, 16, 64)
+
+	fmt.Printf("\033[38;2;%d;%d;%dm", red, green, blue)
+	return ""
 }
