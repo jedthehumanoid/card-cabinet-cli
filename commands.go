@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/jedthehumanoid/card-cabinet"
-	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -28,24 +27,12 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config)
 	}
 }
 
-func listBoards(boards []cardcabinet.Board) {
+func listBoards(boards []cardcabinet.Board, config Config) {
 	for _, board := range boards {
 		if board.Title != "" {
-			fmt.Println(board.Title)
+			fmt.Println(strings.TrimPrefix(board.Title, config.Src))
 		}
 	}
-}
-
-func edit(board cardcabinet.Board, config Config) {
-	args := []string{}
-	for _, deck := range board.Decks {
-		for _, card := range deck.Cards {
-			args = append(args, config.Src+card)
-		}
-	}
-
-	cmd := exec.Command("emacs", args...)
-	cmd.Start()
 }
 
 func catCards(cards []cardcabinet.Card, board cardcabinet.Board) {
@@ -86,6 +73,9 @@ func names(board cardcabinet.Board, config Config) {
 }
 
 func listCard(card cardcabinet.Card, config Config) {
+
+	card.Title = strings.TrimPrefix(card.Title, config.Src)
+
 	tokens := strings.Split(card.Title, "/")
 
 	p := strings.Join(tokens[:len(tokens)-1], "/")

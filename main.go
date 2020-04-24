@@ -5,7 +5,6 @@ import (
 	"github.com/jedthehumanoid/card-cabinet"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 const defaultcommand = "list"
@@ -60,12 +59,12 @@ func main() {
 	cards := cardcabinet.ReadCards(files)
 	boards := cardcabinet.ReadBoards(files)
 
-	for i, _ := range cards {
-		cards[i].Title = strings.TrimPrefix(cards[i].Title, config.Src)
-	}
-
-	for i, _ := range boards {
-		boards[i].Title = strings.TrimPrefix(boards[i].Title, config.Src)
+	for _, folder := range cardcabinet.GetFolders(cards) {
+		var board cardcabinet.Board
+		board.Title = folder + "/"
+		deck := cardcabinet.Deck{}
+		board.Decks = []cardcabinet.Deck{deck}
+		boards = append(boards, board)
 	}
 
 	var board cardcabinet.Board
@@ -78,26 +77,19 @@ func main() {
 		}
 		board.Decks = []cardcabinet.Deck{deck}
 	} else {
-		board = cardcabinet.GetBoard(boards, b)
+		board = cardcabinet.GetBoard(boards, config.Src+b)
 	}
 
 	board = board.Get(cards)
-
 	switch command {
 	case "boards", "b":
-		listBoards(boards)
+		listBoards(boards, config)
 	case "list", "ls":
 		listBoard(cards, board, config)
 	case "cat", "c":
 		catCards(cards, board)
 	case "filename", "f":
 		names(board, config)
-	case "addlabel":
-		fmt.Println("add label")
-	case "removelabel":
-		fmt.Println("remove label")
-	case "edit", "e":
-		edit(board, config)
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}
