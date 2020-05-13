@@ -17,7 +17,7 @@ import (
 
 // ToString return JSON representation of interface
 func ToJSON(in interface{}) string {
-	b, err := json.Marshal(in)
+	b, err := json.MarshalIndent(in, "", "   ")
 	if err != nil {
 		panic(err)
 	}

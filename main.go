@@ -61,7 +61,7 @@ func main() {
 
 	for _, folder := range cardcabinet.GetFolders(cards) {
 		var board cardcabinet.Board
-		board.Title = folder + "/"
+		board.Name = folder + "/"
 		deck := cardcabinet.Deck{}
 		board.Decks = []cardcabinet.Deck{deck}
 		boards = append(boards, board)
@@ -73,14 +73,15 @@ func main() {
 		board = cardcabinet.Board{}
 		deck := cardcabinet.Deck{}
 		for _, card := range cards {
-			deck.Cards = append(deck.Cards, card.Title)
+			deck.Names = append(deck.Names, card.Name)
 		}
 		board.Decks = []cardcabinet.Deck{deck}
 	} else {
 		board = cardcabinet.GetBoard(boards, config.Src+b)
 	}
 
-	board = board.Get(cards)
+	fmt.Println(ToJSON(boards))
+
 	switch command {
 	case "boards", "b":
 		listBoards(boards, config)
@@ -89,7 +90,7 @@ func main() {
 	case "cat", "c":
 		catCards(cards, board)
 	case "filename", "f":
-		names(board, config)
+		names(cards, board, config)
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}

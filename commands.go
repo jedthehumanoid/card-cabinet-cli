@@ -9,14 +9,15 @@ import (
 
 func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config) {
 	i := 1
+
 	for _, deck := range board.Decks {
-		if deck.Title != "" {
-			fmt.Println(deck.Title)
-			fmt.Println(gray + fill("\u2500", len(deck.Title)) + reset)
+		if deck.Name != "" {
+			fmt.Println(deck.Name)
+			fmt.Println(gray + fill("\u2500", len(deck.Name)) + reset)
 
 		}
-		for _, title := range deck.Cards {
-			card, err := cardcabinet.GetCard(cards, title)
+		for _, name := range deck.Get(cards) {
+			card, err := cardcabinet.GetCard(cards, name)
 			if err == nil {
 				fmt.Printf("%d) ", i)
 				listCard(card, config)
@@ -29,8 +30,8 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config)
 
 func listBoards(boards []cardcabinet.Board, config Config) {
 	for _, board := range boards {
-		if board.Title != "" {
-			fmt.Println(strings.TrimPrefix(board.Title, config.Src))
+		if board.Name != config.Src {
+			fmt.Println(strings.TrimPrefix(board.Name, config.Src))
 		}
 	}
 }
@@ -39,13 +40,13 @@ func catCards(cards []cardcabinet.Card, board cardcabinet.Board) {
 	columns := getColumns()
 	fmt.Println()
 	for _, deck := range board.Decks {
-		for _, title := range deck.Cards {
-			card, err := cardcabinet.GetCard(cards, title)
+		for _, name := range deck.Get(cards) {
+			card, err := cardcabinet.GetCard(cards, name)
 			if err != nil {
 				continue
 			}
 			fmt.Println(darkgray + "\u250c" + fill("\u2500", columns-2) + reset)
-			fmt.Println(darkgray + "\u2502 " + yellow + card.Title + reset)
+			fmt.Println(darkgray + "\u2502 " + yellow + card.Name + reset)
 			fmt.Println(darkgray + "\u251c" + fill("\u2500", columns-2) + reset)
 			if card.MarshalFrontmatter(false) != "" {
 				for _, line := range strings.Split(card.MarshalFrontmatter(false), "\n") {
@@ -64,19 +65,19 @@ func catCards(cards []cardcabinet.Card, board cardcabinet.Board) {
 	}
 }
 
-func names(board cardcabinet.Board, config Config) {
+func names(cards []cardcabinet.Card, board cardcabinet.Board, config Config) {
 	for _, deck := range board.Decks {
-		for _, card := range deck.Cards {
-			fmt.Printf("%s%s\n", config.Src, card)
+		for _, name := range deck.Get(cards) {
+			fmt.Printf("%s%s\n", config.Src, name)
 		}
 	}
 }
 
 func listCard(card cardcabinet.Card, config Config) {
 
-	card.Title = strings.TrimPrefix(card.Title, config.Src)
+	card.Name = strings.TrimPrefix(card.Name, config.Src)
 
-	tokens := strings.Split(card.Title, "/")
+	tokens := strings.Split(card.Name, "/")
 
 	p := strings.Join(tokens[:len(tokens)-1], "/")
 	if p != "" {
