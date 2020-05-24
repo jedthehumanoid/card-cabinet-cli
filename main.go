@@ -59,28 +59,31 @@ func main() {
 	cards := cardcabinet.ReadCards(files)
 	boards := cardcabinet.ReadBoards(files)
 
-	for _, folder := range cardcabinet.GetFolders(cards) {
-		var board cardcabinet.Board
-		board.Name = folder + "/"
-		deck := cardcabinet.Deck{}
-		board.Decks = []cardcabinet.Deck{deck}
-		boards = append(boards, board)
-	}
-
-	var board cardcabinet.Board
-
-	if b == "" || b == "." {
-		board = cardcabinet.Board{}
-		deck := cardcabinet.Deck{}
-		for _, card := range cards {
-			deck.Names = append(deck.Names, card.Name)
+	/*
+		for _, folder := range cardcabinet.GetFolders(cards) {
+			var board cardcabinet.Board
+			board.Name = folder + "/"
+			deck := cardcabinet.Deck{}
+			board.Decks = []cardcabinet.Deck{deck}
+			boards = append(boards, board)
 		}
-		board.Decks = []cardcabinet.Deck{deck}
-	} else {
-		board = cardcabinet.GetBoard(boards, config.Src+b)
-	}
 
-	fmt.Println(ToJSON(boards))
+		var board cardcabinet.Board
+
+		if b == "" || b == "." {
+			board = cardcabinet.Board{}
+			deck := cardcabinet.Deck{}
+			for _, card := range cards {
+				deck.Names = append(deck.Names, card.Name)
+			}
+			board.Decks = []cardcabinet.Deck{deck}
+		} else {
+	*/
+	board := cardcabinet.GetBoard(boards, config.Src+b)
+
+	//}
+
+	//	fmt.Println(ToJSON(boards))
 
 	switch command {
 	case "boards", "b":

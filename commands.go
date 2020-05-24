@@ -16,13 +16,12 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config)
 			fmt.Println(gray + fill("\u2500", len(deck.Name)) + reset)
 
 		}
-		for _, name := range deck.Get(cards) {
-			card, err := cardcabinet.GetCard(cards, name)
-			if err == nil {
-				fmt.Printf("%d) ", i)
-				listCard(card, config)
-				i++
-			}
+
+		//	fmt.Println(board.Cards(cards))
+		for _, card := range deck.Get(board.Cards(cards)) {
+			fmt.Printf("%d) ", i)
+			listCard(card, config)
+			i++
 		}
 		fmt.Println()
 	}
@@ -30,9 +29,11 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config)
 
 func listBoards(boards []cardcabinet.Board, config Config) {
 	for _, board := range boards {
-		if board.Name != config.Src {
-			fmt.Println(strings.TrimPrefix(board.Name, config.Src))
+		name := strings.TrimPrefix(board.Name, config.Src)
+		if name == "" {
+			name = "/"
 		}
+		fmt.Println(name)
 	}
 }
 
@@ -40,11 +41,7 @@ func catCards(cards []cardcabinet.Card, board cardcabinet.Board) {
 	columns := getColumns()
 	fmt.Println()
 	for _, deck := range board.Decks {
-		for _, name := range deck.Get(cards) {
-			card, err := cardcabinet.GetCard(cards, name)
-			if err != nil {
-				continue
-			}
+		for _, card := range deck.Get(cards) {
 			fmt.Println(darkgray + "\u250c" + fill("\u2500", columns-2) + reset)
 			fmt.Println(darkgray + "\u2502 " + yellow + card.Name + reset)
 			fmt.Println(darkgray + "\u251c" + fill("\u2500", columns-2) + reset)
