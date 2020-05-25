@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -78,6 +79,12 @@ func main() {
 			}
 		}
 		cards = temp
+	}
+
+	number, err := strconv.Atoi(command)
+	if err == nil {
+		cards = cards[number-1 : number]
+		command = args[0]
 	}
 
 	switch command {
