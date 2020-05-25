@@ -5,6 +5,8 @@ import (
 	"github.com/jedthehumanoid/card-cabinet"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strings"
 )
 
 const defaultcommand = "list"
@@ -47,7 +49,7 @@ func loadConfig(file string) Config {
 
 func main() {
 	config := loadConfig("cabinet.toml")
-	command, b, _, _ := getArguments()
+	command, b, args, _ := getArguments()
 
 	if config.Src == "" {
 		config.Src = "."
@@ -59,31 +61,24 @@ func main() {
 	cards := cardcabinet.ReadCards(files)
 	boards := cardcabinet.ReadBoards(files)
 
-	/*
-		for _, folder := range cardcabinet.GetFolders(cards) {
-			var board cardcabinet.Board
-			board.Name = folder + "/"
-			deck := cardcabinet.Deck{}
-			board.Decks = []cardcabinet.Deck{deck}
-			boards = append(boards, board)
-		}
+	if b == "." {
+		b = ""
+	}
 
-		var board cardcabinet.Board
-
-		if b == "" || b == "." {
-			board = cardcabinet.Board{}
-			deck := cardcabinet.Deck{}
-			for _, card := range cards {
-				deck.Names = append(deck.Names, card.Name)
-			}
-			board.Decks = []cardcabinet.Deck{deck}
-		} else {
-	*/
 	board := cardcabinet.GetBoard(boards, config.Src+b)
 
-	//}
+	if command == "search" || command == "s" {
+		re := regexp.MustCompile("(?i)" + strings.Join(args[:len(args)-1], ".*"))
+		command = args[len(args)-1]
 
-	//	fmt.Println(ToJSON(boards))
+		temp := []cardcabinet.Card{}
+		for _, card := range cards {
+			if re.MatchString(card.Name) {
+				temp = append(temp, card)
+			}
+		}
+		cards = temp
+	}
 
 	switch command {
 	case "boards", "b":

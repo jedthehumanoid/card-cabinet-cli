@@ -64,8 +64,8 @@ func catCards(cards []cardcabinet.Card, board cardcabinet.Board) {
 
 func names(cards []cardcabinet.Card, board cardcabinet.Board, config Config) {
 	for _, deck := range board.Decks {
-		for _, name := range deck.Get(cards) {
-			fmt.Printf("%s%s\n", config.Src, name)
+		for _, card := range deck.Get(cards) {
+			fmt.Printf("%s%s\n", config.Src, card.Name)
 		}
 	}
 }
