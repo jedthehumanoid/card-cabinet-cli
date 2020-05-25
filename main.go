@@ -22,20 +22,20 @@ type Config struct {
 
 func getArguments() (string, string, []string, []string) {
 	command := defaultcommand
-	board := ""
+	board := "."
 
 	arguments, flags := extractPrefix(os.Args[1:], "-")
-
-	if len(arguments) > 0 {
-		command = arguments[0]
-		arguments = arguments[1:]
-	}
 
 	if len(arguments) > 0 {
 		board = arguments[0]
 		arguments = arguments[1:]
 	}
-	return command, board, arguments, flags
+
+	if len(arguments) > 0 {
+		command = arguments[0]
+		arguments = arguments[1:]
+	}
+	return board, command, arguments, flags
 }
 
 func loadConfig(file string) Config {
@@ -49,7 +49,7 @@ func loadConfig(file string) Config {
 
 func main() {
 	config := loadConfig("cabinet.toml")
-	command, b, args, _ := getArguments()
+	b, command, args, _ := getArguments()
 
 	if config.Src == "" {
 		config.Src = "."
