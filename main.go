@@ -5,9 +5,6 @@ import (
 	"github.com/jedthehumanoid/card-cabinet"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strconv"
-	"strings"
 )
 
 const defaultcommand = "list"
@@ -23,7 +20,7 @@ type Config struct {
 
 func getArguments() (string, string, []string, []string) {
 	command := defaultcommand
-	board := "."
+	board := "/"
 
 	arguments, flags := extractPrefix(os.Args[1:], "-")
 
@@ -36,6 +33,8 @@ func getArguments() (string, string, []string, []string) {
 		board = arguments[0]
 		arguments = arguments[1:]
 	}
+
+	//	fmt.Println(command, board, arguments, flags)
 	return command, board, arguments, flags
 }
 
@@ -50,7 +49,7 @@ func loadConfig(file string) Config {
 
 func main() {
 	config := loadConfig("cabinet.toml")
-	command, b, args, _ := getArguments()
+	command, b, _, _ := getArguments()
 
 	if config.Src == "" {
 		config.Src = "."
@@ -61,30 +60,11 @@ func main() {
 	cards := cardcabinet.ReadCards(config.Src)
 	boards := cardcabinet.ReadBoards(config.Src)
 
-	if b == "." {
-		b = ""
-	}
+	//	for _, board := range boards {
+	//		fmt.Println(board.Name)
+	//	}
 
 	board := cardcabinet.GetBoard(boards, b)
-
-	if command == "search" || command == "s" {
-		re := regexp.MustCompile("(?i)" + strings.Join(args[:len(args)-1], ".*"))
-		command = args[len(args)-1]
-
-		temp := []cardcabinet.Card{}
-		for _, card := range cards {
-			if re.MatchString(card.Name) {
-				temp = append(temp, card)
-			}
-		}
-		cards = temp
-	}
-
-	number, err := strconv.Atoi(command)
-	if err == nil {
-		cards = cards[number-1 : number]
-		command = args[0]
-	}
 
 	switch command {
 	case "boards", "b":
@@ -95,6 +75,8 @@ func main() {
 		catCards(cards, board)
 	case "filename", "f":
 		names(cards, board, config)
+	case "search", "s":
+	//	search(cards, board, config)
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}

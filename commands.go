@@ -8,8 +8,6 @@ import (
 )
 
 func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config) {
-	i := 1
-
 	for _, deck := range board.Decks {
 		if deck.Name != "" {
 			fmt.Println(deck.Name)
@@ -18,9 +16,7 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config)
 		}
 
 		for _, card := range deck.Get(board.Cards(cards)) {
-			fmt.Printf("%d) ", i)
 			listCard(card, config)
-			i++
 		}
 		fmt.Println()
 	}
@@ -29,9 +25,6 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config)
 func listBoards(boards []cardcabinet.Board, config Config) {
 	for _, board := range boards {
 		name := strings.TrimPrefix(board.Name, config.Src)
-		if name == "" {
-			name = "/"
-		}
 		fmt.Println(name)
 	}
 }
