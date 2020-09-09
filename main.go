@@ -57,10 +57,15 @@ func main() {
 	}
 
 	config.Src = filepath.Clean(config.Src) + "/"
-	files := cardcabinet.FindFiles(config.Src)
 
-	cards := cardcabinet.ReadCards(files)
-	boards := cardcabinet.ReadBoards(files)
+	cards := cardcabinet.ReadCards(config.Src)
+	boards := cardcabinet.ReadBoards(config.Src)
+
+	for _, card := range cards {
+		fmt.Println(card.Name)
+	}
+
+	fmt.Println(boards)
 
 	if b == "." {
 		b = ""
