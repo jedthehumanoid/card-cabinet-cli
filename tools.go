@@ -15,7 +15,7 @@ import (
 	"unicode"
 )
 
-// ToString return JSON representation of interface
+// ToJSON return JSON representation of interface
 func ToJSON(in interface{}) string {
 	b, err := json.MarshalIndent(in, "", "   ")
 	if err != nil {

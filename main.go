@@ -28,15 +28,15 @@ func getArguments() (string, string, []string, []string) {
 	arguments, flags := extractPrefix(os.Args[1:], "-")
 
 	if len(arguments) > 0 {
-		board = arguments[0]
+		command = arguments[0]
 		arguments = arguments[1:]
 	}
 
 	if len(arguments) > 0 {
-		command = arguments[0]
+		board = arguments[0]
 		arguments = arguments[1:]
 	}
-	return board, command, arguments, flags
+	return command, board, arguments, flags
 }
 
 func loadConfig(file string) Config {
@@ -50,7 +50,7 @@ func loadConfig(file string) Config {
 
 func main() {
 	config := loadConfig("cabinet.toml")
-	b, command, args, _ := getArguments()
+	command, b, args, _ := getArguments()
 
 	if config.Src == "" {
 		config.Src = "."
@@ -61,17 +61,11 @@ func main() {
 	cards := cardcabinet.ReadCards(config.Src)
 	boards := cardcabinet.ReadBoards(config.Src)
 
-	for _, card := range cards {
-		fmt.Println(card.Name)
-	}
-
-	fmt.Println(boards)
-
 	if b == "." {
 		b = ""
 	}
 
-	board := cardcabinet.GetBoard(boards, config.Src+b)
+	board := cardcabinet.GetBoard(boards, b)
 
 	if command == "search" || command == "s" {
 		re := regexp.MustCompile("(?i)" + strings.Join(args[:len(args)-1], ".*"))

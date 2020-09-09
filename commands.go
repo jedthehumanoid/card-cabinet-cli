@@ -17,7 +17,6 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config)
 
 		}
 
-		//	fmt.Println(board.Cards(cards))
 		for _, card := range deck.Get(board.Cards(cards)) {
 			fmt.Printf("%d) ", i)
 			listCard(card, config)
