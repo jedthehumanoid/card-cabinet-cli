@@ -55,6 +55,11 @@ func main() {
 		config.Src = "."
 	}
 
+	fi, _ := os.Stdout.Stat()
+	if (fi.Mode() & os.ModeCharDevice) == 0 {
+		command = "f"
+	}
+
 	config.Src = filepath.Clean(config.Src) + "/"
 
 	cards := cardcabinet.ReadCards(config.Src)
@@ -71,12 +76,13 @@ func main() {
 		listBoards(boards, config)
 	case "list", "ls":
 		listBoard(cards, board, config)
-	case "cat", "c":
-		catCards(cards, board)
 	case "filename", "f":
-		names(cards, board, config)
-	case "search", "s":
-	//	search(cards, board, config)
+		cards = board.Cards(cards)
+		for _, deck := range board.Decks {
+			for _, card := range deck.Get(cards) {
+				fmt.Printf("%s%s%s\n", config.Src, board.Path(), card.Name)
+			}
+		}
 	default:
 		fmt.Printf("Unknown command: %s\n", command)
 	}
