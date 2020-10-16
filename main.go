@@ -41,19 +41,18 @@ func getArguments() (string, string, []string, []string) {
 func loadConfig(file string) Config {
 	var config Config
 	err := loadToml(file, &config)
-	if err != nil {
-		fmt.Println("Couldn't load configuration file")
-	}
 	return config
 }
 
 func main() {
 	config := loadConfig("cabinet.toml")
-	command, b, _, _ := getArguments()
+	command, boardname, _, _ := getArguments()
 
 	if config.Src == "" {
 		config.Src = "."
 	}
+
+	fmt.Printf("Looking for cards in: %s\n", config.Src)
 
 	fi, _ := os.Stdout.Stat()
 	if (fi.Mode() & os.ModeCharDevice) == 0 {
@@ -65,11 +64,22 @@ func main() {
 	cards := cardcabinet.ReadCards(config.Src)
 	boards := cardcabinet.ReadBoards(config.Src)
 
-	//	for _, board := range boards {
-	//		fmt.Println(board.Name)
-	//	}
+	for _, card := range cards {
+		fmt.Println(card.Name)
+	}
 
-	board := cardcabinet.GetBoard(boards, b)
+	for _, board := range boards {
+		fmt.Println(board.Name)
+	}
+
+
+	var board cardcabinet.Board
+
+	for _, b := range boards {
+		if b.Name == boardname {
+			board = b
+		}
+	}
 
 	switch command {
 	case "boards", "b":
