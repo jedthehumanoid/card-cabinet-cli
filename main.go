@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jedthehumanoid/card-cabinet"
 	"os"
+	"strings"
 	"path/filepath"
 )
 
@@ -40,7 +41,7 @@ func getArguments() (string, string, []string, []string) {
 
 func loadConfig(file string) Config {
 	var config Config
-	err := loadToml(file, &config)
+	loadToml(file, &config)
 	return config
 }
 
@@ -66,6 +67,19 @@ func main() {
 
 	for _, card := range cards {
 		fmt.Println(card.Name)
+
+		if card.Frontmatter != "" {
+			fmt.Println(card.Properties)
+			fmt.Println(card.Frontmatter)
+		}
+		if card.Contents != "" {
+		if len(card.Contents) > 80 {
+			fmt.Println(strings.Replace(card.Contents, "\n", "", -1)[:80])
+		} else {
+			fmt.Println(strings.Replace(card.Contents, "\n", "", -1))
+		}
+		}
+		fmt.Println()
 	}
 
 	for _, board := range boards {
