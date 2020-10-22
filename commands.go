@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/jedthehumanoid/card-cabinet"
 	"strconv"
 	"strings"
+
+	"github.com/jedthehumanoid/cardcabinet"
 )
 
 func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config) {
@@ -24,8 +25,7 @@ func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config)
 
 func listBoards(boards []cardcabinet.Board, config Config) {
 	for _, board := range boards {
-		name := strings.TrimPrefix(board.Name, config.Src)
-		fmt.Println(name)
+		fmt.Println(board.Name)
 	}
 }
 

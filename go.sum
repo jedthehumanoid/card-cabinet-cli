@@ -1,13 +1,5 @@
 github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
-github.com/jedthehumanoid/card-cabinet v0.0.0-20200417173409-60451e523c47 h1:SmpgCsI6tDwS66XoVoK9SdH/g0WME64VqX4gjiR7MPE=
-github.com/jedthehumanoid/card-cabinet v0.0.0-20200417173409-60451e523c47/go.mod h1:S9GC/vELgt1Aq8vDEPFgM3M2eoqHeU19n8IXyf8IGPI=
-github.com/jedthehumanoid/card-cabinet v0.0.0-20200417181451-c1fc222ac50a h1:8x7EpUZN0SCEKiPQ9ibufizRa9N6BJa2Xttheo5Edoc=
-github.com/jedthehumanoid/card-cabinet v0.0.0-20200417181451-c1fc222ac50a/go.mod h1:S9GC/vELgt1Aq8vDEPFgM3M2eoqHeU19n8IXyf8IGPI=
-github.com/jedthehumanoid/card-cabinet v0.0.0-20200420172919-ff64c02439b7 h1:hvafMBbUnP/93YDp+CFRv0RUvcnSPLTStYESnh/Pn90=
-github.com/jedthehumanoid/card-cabinet v0.0.0-20200420172919-ff64c02439b7/go.mod h1:S9GC/vELgt1Aq8vDEPFgM3M2eoqHeU19n8IXyf8IGPI=
-github.com/jedthehumanoid/card-cabinet v0.0.0-20200424050516-14e85b67161c h1:6Ivqvknt2mxW/KF84TpFe8aMo7u6SZPZS5J6b9AXKws=
-github.com/jedthehumanoid/card-cabinet v0.0.0-20200424050516-14e85b67161c/go.mod h1:S9GC/vELgt1Aq8vDEPFgM3M2eoqHeU19n8IXyf8IGPI=
 golang.org/x/text v0.3.2 h1:tW2bmiBqwgJj/UpqtC8EpXEZVYOwU0yG4iWbprSVAcs=
 golang.org/x/text v0.3.2/go.mod h1:bEr9sfX3Q8Zfm5fL9x+3itogRgK3+ptLWKqgva+5dAk=
 golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
