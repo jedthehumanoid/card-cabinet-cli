@@ -1,4 +1,4 @@
-package main
+package cmd
 
 import (
 	"fmt"
@@ -6,13 +6,14 @@ import (
 	"strings"
 
 	"github.com/jedthehumanoid/cardcabinet"
+	"card-cabinet-cli/tools"
 )
 
 func listBoard(cards []cardcabinet.Card, board cardcabinet.Board, config Config) {
 	for _, deck := range board.Decks {
 		if deck.Name != "" {
 			fmt.Println(deck.Name)
-			fmt.Println(gray + fill("\u2500", len(deck.Name)) + reset)
+			fmt.Println(gray + tools.Fill("\u2500", len(deck.Name)) + reset)
 
 		}
 
@@ -30,13 +31,13 @@ func listBoards(boards []cardcabinet.Board, config Config) {
 }
 
 func catCards(cards []cardcabinet.Card, board cardcabinet.Board) {
-	columns := getColumns()
+	columns := tools.GetColumns()
 	fmt.Println()
 	for _, deck := range board.Decks {
 		for _, card := range deck.Get(cards) {
-			fmt.Println(darkgray + "\u250c" + fill("\u2500", columns-2) + reset)
+			fmt.Println(darkgray + "\u250c" + tools.Fill("\u2500", columns-2) + reset)
 			fmt.Println(darkgray + "\u2502 " + yellow + card.Name + reset)
-			fmt.Println(darkgray + "\u251c" + fill("\u2500", columns-2) + reset)
+			fmt.Println(darkgray + "\u251c" + tools.Fill("\u2500", columns-2) + reset)
 			if card.MarshalFrontmatter(false) != "" {
 				for _, line := range strings.Split(card.MarshalFrontmatter(false), "\n") {
 					fmt.Println(darkgray + "\u2502 " + gray + line + reset)
@@ -44,12 +45,12 @@ func catCards(cards []cardcabinet.Card, board cardcabinet.Board) {
 			}
 			if card.Contents != "" {
 				for _, line := range strings.Split(card.Contents, "\n") {
-					for _, line := range splitlen(line, columns-2) {
+					for _, line := range tools.Splitlen(line, columns-2) {
 						fmt.Println(darkgray + "\u2502 " + reset + line)
 					}
 				}
 			}
-			fmt.Println(darkgray + "\u2514" + fill("\u2500", columns-2) + reset)
+			fmt.Println(darkgray + "\u2514" + tools.Fill("\u2500", columns-2) + reset)
 		}
 	}
 }
@@ -75,7 +76,7 @@ func listCard(card cardcabinet.Card, config Config) {
 
 	title := tokens[len(tokens)-1]
 
-	title = FromSlug(title)
+	title = tools.FromSlug(title)
 	title = strings.ToUpper(title[:1]) + title[1:]
 	title = strings.TrimSuffix(title, ".md")
 	fmt.Printf("%s%s", p, title)
@@ -83,7 +84,7 @@ func listCard(card cardcabinet.Card, config Config) {
 		fmt.Print(yellow + " \u2261" + reset)
 	}
 
-	for _, label := range asStringSlice(card.Properties["labels"]) {
+	for _, label := range tools.AsStringSlice(card.Properties["labels"]) {
 		c, hascolor := config.Colors[label]
 		if hascolor {
 			fmt.Printf(color(c))

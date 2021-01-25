@@ -1,4 +1,4 @@
-package main
+package tools
 
 import (
 	"encoding/json"
@@ -17,6 +17,15 @@ import (
 
 // ToJSON return JSON representation of interface
 func ToJSON(in interface{}) string {
+	b, err := json.Marshal(in)
+	if err != nil {
+		panic(err)
+	}
+	return string(b)
+}
+
+// ToJSONPretty return indented JSON representation of interface
+func ToJSONPretty(in interface{}) string {
 	b, err := json.MarshalIndent(in, "", "   ")
 	if err != nil {
 		panic(err)
@@ -24,7 +33,7 @@ func ToJSON(in interface{}) string {
 	return string(b)
 }
 
-func getColumns() int {
+func GetColumns() int {
 
 	cmd := exec.Command("tput", "cols")
 	columns, _ := cmd.Output()
@@ -32,7 +41,7 @@ func getColumns() int {
 	return ret
 }
 
-func splitlen(s string, length int) []string {
+func Splitlen(s string, length int) []string {
 	ret := []string{}
 	for len(s) > length {
 		ret = append(ret, s[:length])
@@ -43,7 +52,7 @@ func splitlen(s string, length int) []string {
 	return ret
 }
 
-func fill(c string, len int) string {
+func Fill(c string, len int) string {
 	ret := ""
 	for i := 0; i < len; i++ {
 		ret += c
@@ -51,7 +60,7 @@ func fill(c string, len int) string {
 	return ret
 }
 
-func asStringSlice(i interface{}) []string {
+func AsStringSlice(i interface{}) []string {
 	ret := []string{}
 	if i == nil {
 		return ret
@@ -76,7 +85,7 @@ func extractPrefix(list []string, prefix string) ([]string, []string) {
 	return normal, prefixed
 }
 
-func loadToml(file string, i interface{}) error {
+func LoadToml(file string, i interface{}) error {
 	d, err := ioutil.ReadFile(file)
 	if err != nil {
 		return err
