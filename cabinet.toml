@@ -1,6 +1,0 @@
-src = "observation-deck-cards"
-
-[colors]
-done = "5fdf5f"
-story = "268bd2"
-doc = "ebdbb2"

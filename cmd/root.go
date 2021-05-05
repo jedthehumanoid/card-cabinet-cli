@@ -38,4 +38,7 @@ func init() {
 
 func readConfig() {
 	tools.LoadToml("cabinet.toml", &config)
+	if config.Src == "" {
+		config.Src = "."
+	}
 }
