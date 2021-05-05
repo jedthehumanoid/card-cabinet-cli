@@ -4,6 +4,7 @@ import (
 "fmt"
 	"github.com/spf13/cobra"
 	"github.com/jedthehumanoid/cardcabinet"
+	"strings"
 )
 
 func init(){
@@ -18,7 +19,8 @@ var lsCmd = &cobra.Command{
 }
 func ls(args []string) {
 	cards := cardcabinet.ReadCards(config.Src)
-	for _, card := range cards {
+	ret := cardcabinet.QueryCards(cards, strings.Join(args, " "))
+	for _, card := range ret {
 		fmt.Println(card.Name)
 	}
 }
