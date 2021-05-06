@@ -1,14 +1,16 @@
 package cmd
 
 import (
-"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/jedthehumanoid/cardcabinet"
-	"strings"
+	"path/filepath"
 )
+var query string
 
 func init(){
 	rootCmd.AddCommand(lsCmd)
+	lsCmd.PersistentFlags().StringVarP(&query, "query", "q", "", "Query")
 }
 var lsCmd = &cobra.Command{
 	Use: "ls",
@@ -18,9 +20,18 @@ var lsCmd = &cobra.Command{
 	},
 }
 func ls(args []string) {
-	cards := cardcabinet.ReadCards(config.Src)
-	ret := cardcabinet.QueryCards(cards, strings.Join(args, " "))
-	for _, card := range ret {
-		fmt.Println(card.Name)
+	src := "."
+	if len(args) > 0 {
+		src = args[0]
+
 	}
+	src = filepath.Clean(src) + "/"
+	cards := cardcabinet.ReadCards(src)
+	if query != "" {
+		cards = cardcabinet.QueryCards(cards, query)
+	}
+	for _, card := range cards {
+		listCard(card, config)
+	}
+	
 }
