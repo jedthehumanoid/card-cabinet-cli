@@ -5,6 +5,7 @@ import (
 	"os"
 	"github.com/spf13/cobra"
 	"card-cabinet-cli/tools"
+	"path/filepath"
 
 )
 
@@ -14,6 +15,7 @@ type Config struct {
 }
 
 var config Config
+var recursive bool
 
 const gray = "\033[38;2;100;100;100m"
 const darkgray = "\033[38;2;50;50;50m"
@@ -41,4 +43,5 @@ func readConfig() {
 	if config.Src == "" {
 		config.Src = "."
 	}
+	config.Src = filepath.Clean(config.Src) + "/"
 }

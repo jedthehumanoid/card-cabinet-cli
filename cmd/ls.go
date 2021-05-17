@@ -12,27 +12,27 @@ var board string
 
 func init() {
 	rootCmd.AddCommand(lsCmd)
+	lsCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "Recurse into subdirectories")
 	lsCmd.PersistentFlags().StringVarP(&query, "query", "q", "", "Query")
 	lsCmd.PersistentFlags().StringVarP(&board, "board", "b", "", "Show cards in board")
 }
 
 var lsCmd = &cobra.Command{
-	Use:   "ls",
-	Short: "List cards, with optional filter",
+	Use:   "ls [DIR]",
+	Short: "List cards",
 	Run: func(cmd *cobra.Command, args []string) {
 		ls(args)
 	},
 }
 
 func ls(args []string) {
-	src := "."
 	if len(args) > 0 {
-		src = args[0]
-
+		config.Src = args[0]
+		config.Src = filepath.Clean(config.Src) + "/"
 	}
-	src = filepath.Clean(src) + "/"
-	cards := cardcabinet.ReadCards(src)
-	boards := cardcabinet.ReadBoards(src)
+
+	cards := cardcabinet.ReadCards(config.Src, recursive)
+	boards := cardcabinet.ReadBoards(config.Src, recursive)
 
 	if board != "" {
 		for _, b := range boards {

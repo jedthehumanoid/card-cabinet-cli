@@ -9,26 +9,26 @@ import (
 
 func init() {
 	rootCmd.AddCommand(boardsCmd)
+	boardsCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "Recurse into subdirectories")
+
 }
 
 var boardsCmd = &cobra.Command{
 	Use:   "boards",
-	Short: "Get boards",
+	Short: "List boards",
 	Run: func(cmd *cobra.Command, args []string) {
 		boards(args)
 	},
 }
 
 func boards(args []string) {
-
-	src := "."
 	if len(args) > 0 {
-		src = args[0]
+		config.Src = args[0]
+		config.Src = filepath.Clean(config.Src) + "/"
 
 	}
-	src = filepath.Clean(src) + "/"
 	
-	boards := cardcabinet.ReadBoards(src)
+	boards := cardcabinet.ReadBoards(config.Src, recursive)
 	for _, board := range boards {
 		fmt.Println(board.Name)
 

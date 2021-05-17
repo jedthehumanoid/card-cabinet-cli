@@ -6,9 +6,7 @@ import (
 	"golang.org/x/text/transform"
 	"golang.org/x/text/unicode/norm"
 	"io/ioutil"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -103,22 +101,6 @@ func ContainsString(list []string, s string) bool {
 		}
 	}
 	return false
-}
-
-// FindFiles is like find
-func FindFiles(path string) []string {
-	files := []string{}
-	filepath.Walk(path,
-		func(file string, f os.FileInfo, err error) error {
-			if err != nil {
-				return err
-			}
-			if !f.IsDir() {
-				files = append(files, file)
-			}
-			return nil
-		})
-	return files
 }
 
 // FromSlug returns "this format" from "this-format"
