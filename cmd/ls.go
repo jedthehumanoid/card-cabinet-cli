@@ -4,17 +4,15 @@ import (
 	"fmt"
 	"github.com/jedthehumanoid/cardcabinet"
 	"github.com/spf13/cobra"
-	"path/filepath"
+	"strings"
 )
 
 var query string
-var board string
 
 func init() {
 	rootCmd.AddCommand(lsCmd)
 	lsCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "Recurse into subdirectories")
 	lsCmd.PersistentFlags().StringVarP(&query, "query", "q", "", "Query")
-	lsCmd.PersistentFlags().StringVarP(&board, "board", "b", "", "Show cards in board")
 }
 
 var lsCmd = &cobra.Command{
@@ -27,45 +25,40 @@ var lsCmd = &cobra.Command{
 
 func ls(args []string) {
 	if len(args) > 0 {
-		config.Src = args[0]
-		config.Src = filepath.Clean(config.Src) + "/"
+		config.Src = args
 	}
 
-	cards := cardcabinet.ReadCards(config.Src, recursive)
-	boards := cardcabinet.ReadBoards(config.Src, recursive)
+	for _, src := range config.Src {
+		fmt.Printf("%s:\n", src)
+		// Add folders
+		cards := cardcabinet.ReadCards(src, recursive)
 
-	if board != "" {
-		for _, b := range boards {
-			if b.Name != board {
-				continue
+		if len(cards) > 0 {
+			for _, card := range cardcabinet.QueryCards(cards, query) {
+				listCard(card, config)
 			}
+			fmt.Println()
+			continue
+		}
+
+		// Add boards
+		src = strings.TrimPrefix(src, "board.toml")
+		src = strings.TrimPrefix(src, ".board")
+
+		b, err := cardcabinet.ReadBoard(src + ".board.toml")
+		if err == nil {
+			cards = cardcabinet.ReadCards(b.Path(), recursive)
 
 			for _, deck := range b.Decks {
-				fmt.Printf("%s:\n", deck.Name)
-				if query == "" {
-					for _, card := range deck.Get(cards) {
-						listCard(card, config)
-					}
-				} else {
-					for _, card := range cardcabinet.QueryCards(deck.Get(cards), query) {
-						listCard(card, config)
-					}
+				fmt.Printf("[%s]\n", deck.Name)
+				for _, card := range cardcabinet.QueryCards(deck.Get(cards), query) {
+					listCard(card, config)
 				}
+
 				fmt.Println()
 			}
 		}
-	}
 
-	if board == "" && query != "" {
-		cards = cardcabinet.QueryCards(cards, query)
-		for _, card := range cards {
-			listCard(card, config)
-		}
-	}
-	if board == "" && query == "" {
-		for _, card := range cards {
-			listCard(card, config)
-		}
 	}
 
 }

@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	Src    string            `toml:"src"`
+	Src    []string            `toml:"src"`
 	Colors map[string]string `toml:"colors"`
 }
 
@@ -40,8 +40,7 @@ func init() {
 
 func readConfig() {
 	tools.LoadToml("cabinet.toml", &config)
-	if config.Src == "" {
-		config.Src = "."
+	if len(config.Src)==0 {
+		config.Src = append(config.Src, filepath.Clean(".") + "/")
 	}
-	config.Src = filepath.Clean(config.Src) + "/"
 }

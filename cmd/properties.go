@@ -5,15 +5,13 @@ import (
 	"fmt"
 	"github.com/jedthehumanoid/cardcabinet"
 	"github.com/spf13/cobra"
-	"path/filepath"
 )
 
 var expandall bool
 
 func init() {
 	rootCmd.AddCommand(propsCmd)
-	propsCmd.PersistentFlags().StringVarP(&board, "board", "b", "", "Show properties in board")
-	propsCmd.PersistentFlags().StringVarP(&board, "expand", "e", "", "Show keys for property")
+	//propsCmd.PersistentFlags().StringVarP(&board, "expand", "e", "", "Show keys for property")
 	propsCmd.PersistentFlags().BoolVarP(&expandall, "expand-all", "E", true, "Show keys for all properties")
 	propsCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "Recurse into subdirectories")
 
@@ -29,11 +27,16 @@ var propsCmd = &cobra.Command{
 
 func props(args []string) {
 	if len(args) > 0 {
-		config.Src = args[0]
-		config.Src = filepath.Clean(config.Src) + "/"
+		config.Src = args
+	
 	}
 
-	cards := cardcabinet.ReadCards(config.Src, recursive)
+	cards := []cardcabinet.Card{}
+
+	for _, src := range config.Src {
+		cards = append(cards, cardcabinet.ReadCards(src, recursive)...)
+	}
+
 	properties := map[string][]string{}
 
 		for _, card := range cards {

@@ -64,14 +64,11 @@ func names(cards []cardcabinet.Card, board cardcabinet.Board, config Config) {
 }
 
 func listCard(card cardcabinet.Card, config Config) {
-
-	card.Name = strings.TrimPrefix(card.Name, config.Src)
-
 	tokens := strings.Split(card.Name, "/")
 
 	p := strings.Join(tokens[:len(tokens)-1], "/")
 	if p != "" {
-		p = gray + "[/" + p + "] " + reset
+		p = gray + "" + p + " " + reset
 	}
 
 	title := tokens[len(tokens)-1]
@@ -91,7 +88,7 @@ func listCard(card cardcabinet.Card, config Config) {
 		} else {
 			fmt.Printf(gray)
 		}
-		fmt.Printf(" [%s]", label)
+		fmt.Printf(" #%s", label)
 	}
 	fmt.Println(reset)
 }

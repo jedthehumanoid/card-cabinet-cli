@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jedthehumanoid/cardcabinet"
 	"github.com/spf13/cobra"
-	"path/filepath"
 )
 
 func init() {
@@ -23,12 +22,14 @@ var boardsCmd = &cobra.Command{
 
 func boards(args []string) {
 	if len(args) > 0 {
-		config.Src = args[0]
-		config.Src = filepath.Clean(config.Src) + "/"
-
+		config.Src = args
 	}
 	
-	boards := cardcabinet.ReadBoards(config.Src, recursive)
+	boards := []cardcabinet.Board{}
+	for _, src := range config.Src {
+		boards = append(boards, cardcabinet.ReadBoards(src, recursive)...)
+	}
+	//boards := cardcabinet.ReadBoards(config.Src, recursive)
 	for _, board := range boards {
 		fmt.Println(board.Name)
 
