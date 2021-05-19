@@ -29,11 +29,14 @@ func ls(args []string) {
 	}
 
 	for _, src := range config.Src {
-		fmt.Printf("%s:\n", src)
-		// Add folders
+
+		// Add folder
 		cards := cardcabinet.ReadCards(src, recursive)
 
 		if len(cards) > 0 {
+			if len(config.Src) > 1 {
+				fmt.Printf("%s:\n", src)
+			}
 			for _, card := range cardcabinet.QueryCards(cards, query) {
 				listCard(card, config)
 			}
@@ -41,12 +44,14 @@ func ls(args []string) {
 			continue
 		}
 
-		// Add boards
-		src = strings.TrimPrefix(src, "board.toml")
-		src = strings.TrimPrefix(src, ".board")
-
+		// Add board
+		src = strings.TrimSuffix(src, ".board.toml")
+		src = strings.TrimSuffix(src, ".board")
 		b, err := cardcabinet.ReadBoard(src + ".board.toml")
 		if err == nil {
+			if len(config.Src) > 1 {
+				fmt.Printf("%s:\n", src)
+			}
 			cards = cardcabinet.ReadCards(b.Path(), recursive)
 
 			for _, deck := range b.Decks {
@@ -57,7 +62,17 @@ func ls(args []string) {
 
 				fmt.Println()
 			}
+			continue
 		}
+		
+		// Add file
+		card, err := cardcabinet.ReadCard(src)
+		if err == nil {
+			listCard(card, config)
+			continue
+		}
+		
+		fmt.Printf("%s: No such file or directory\n", src)
 
 	}
 

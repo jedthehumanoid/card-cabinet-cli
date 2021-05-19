@@ -1,5 +1,7 @@
 
 [colors]
-done = "5fdf5f"
-todo = "268bd2"
+done = "98971a"
+todo = "d65d0e"
+doing = "d79921"
 doc = "ebdbb2"
+vegetariskt = "98971a"
