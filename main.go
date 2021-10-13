@@ -1,9 +1,9 @@
 package main
 
 import (
-  "card-cabinet-cli/cmd"
+	"card-cabinet-cli/cmd"
 )
 
 func main() {
-  cmd.Execute()
+	cmd.Execute()
 }

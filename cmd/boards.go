@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"path/filepath"
 	"github.com/jedthehumanoid/cardcabinet"
 	"github.com/spf13/cobra"
 )
@@ -21,12 +22,12 @@ var boardsCmd = &cobra.Command{
 }
 
 func boards(args []string) {
-	if len(args) > 0 {
-		config.Src = args
+	if len(args) == 0 {
+		args = []string{filepath.Clean(".")+"/"}
 	}
-	
+
 	boards := []cardcabinet.Board{}
-	for _, src := range config.Src {
+	for _, src := range args {
 		boards = append(boards, cardcabinet.ReadBoards(src, recursive)...)
 	}
 	//boards := cardcabinet.ReadBoards(config.Src, recursive)

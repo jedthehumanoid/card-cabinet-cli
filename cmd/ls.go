@@ -1,17 +1,19 @@
 package cmd
 
 import (
+	"card-cabinet-cli/config"
+	"card-cabinet-cli/view"
 	"fmt"
 	"github.com/jedthehumanoid/cardcabinet"
 	"github.com/spf13/cobra"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
-var query string
-
 func init() {
 	rootCmd.AddCommand(lsCmd)
-	lsCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "Recurse into subdirectories")
+	//lsCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "r", true, "Recurse into subdirectories")
 	lsCmd.PersistentFlags().StringVarP(&query, "query", "q", "", "Query")
 }
 
@@ -24,56 +26,39 @@ var lsCmd = &cobra.Command{
 }
 
 func ls(args []string) {
-	if len(args) > 0 {
-		config.Src = args
+	if len(args) == 0 {
+		args = []string{filepath.Clean(".") + "/"}
 	}
 
-	for _, src := range config.Src {
-
-		// Add folder
-		cards := cardcabinet.ReadCards(src, recursive)
-
-		if len(cards) > 0 {
-			if len(config.Src) > 1 {
-				fmt.Printf("%s:\n", src)
-			}
-			for _, card := range cardcabinet.QueryCards(cards, query) {
-				listCard(card, config)
-			}
-			fmt.Println()
-			continue
-		}
-
-		// Add board
-		src = strings.TrimSuffix(src, ".board.toml")
-		src = strings.TrimSuffix(src, ".board")
-		b, err := cardcabinet.ReadBoard(src + ".board.toml")
-		if err == nil {
-			if len(config.Src) > 1 {
-				fmt.Printf("%s:\n", src)
-			}
-			cards = cardcabinet.ReadCards(b.Path(), recursive)
-
-			for _, deck := range b.Decks {
-				fmt.Printf("[%s]\n", deck.Name)
-				for _, card := range cardcabinet.QueryCards(deck.Get(cards), query) {
-					listCard(card, config)
-				}
-
-				fmt.Println()
-			}
-			continue
-		}
-		
-		// Add file
-		card, err := cardcabinet.ReadCard(src)
-		if err == nil {
-			listCard(card, config)
-			continue
-		}
-		
-		fmt.Printf("%s: No such file or directory\n", src)
-
+	fi, err := os.Stat(args[0])
+	if err != nil {
+		fmt.Printf("%s\n", err)
+		return
 	}
 
+	if fi.Mode().IsDir() {
+		cards := cardcabinet.ReadCards(args[0], recursive)
+		for _, card := range cardcabinet.QueryCards(cards, query) {
+			view.List(card, cfg)
+		}
+		fmt.Println()
+	} else if strings.HasSuffix(args[0], ".board.toml") {
+		b, err := cardcabinet.ReadBoard(args[0])
+		if err != nil {
+			fmt.Printf("%s\n", err)
+			return
+		}
+		listboard(b, cfg)
+	}
+}
+
+func listboard(b cardcabinet.Board, config config.Config) {
+	cards := cardcabinet.ReadCards(b.Path(), recursive)
+	for _, deck := range b.Decks {
+		fmt.Printf("[%s]\n", deck.Name)
+		for _, card := range cardcabinet.QueryCards(deck.Get(cards), query) {
+			view.List(card, config)
+		}
+		fmt.Println()
+	}
 }
