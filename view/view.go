@@ -15,18 +15,11 @@ const gray = "\033[38;2;100;100;100m"
 const darkgray = "\033[38;2;50;50;50m"
 
 func List(card cardcabinet.Card, config config.Config) {
-	tokens := strings.Split(card.Name, "/")
-	p := strings.Join(tokens[:len(tokens)-1], "/")
-	if p != "" {
-		p = gray + "" + p + " " + ansi.Reset
-	}
-
-	title := tokens[len(tokens)-1]
-
-	title = slug.From(title)
+	title := slug.From(strings.TrimPrefix(card.Name, card.Path()))
 	title = strings.ToUpper(title[:1]) + title[1:]
 	title = strings.TrimSuffix(title, ".md")
-	fmt.Printf("%s%s", p, title)
+	fmt.Printf("%s%s%s %s", gray, card.Path(), ansi.Reset, title)
+	
 	if card.Contents != "" {
 		fmt.Print(yellow + " \u2261" + ansi.Reset)
 	}
