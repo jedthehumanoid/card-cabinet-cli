@@ -4,11 +4,11 @@ import (
 	"card-cabinet-cli/ansi"
 	"encoding/json"
 	"fmt"
-	"os"
-	"strings"
 	"github.com/jedthehumanoid/cardcabinet"
 	"github.com/spf13/cobra"
+	"os"
 	"path/filepath"
+	"strings"
 )
 
 var expandall bool

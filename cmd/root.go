@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	
 
 	"github.com/BurntSushi/toml"
 	"github.com/spf13/cobra"

@@ -19,7 +19,7 @@ func List(card cardcabinet.Card, config config.Config) {
 	title = strings.ToUpper(title[:1]) + title[1:]
 	title = strings.TrimSuffix(title, ".md")
 	fmt.Printf("%s%s%s %s", gray, card.Path(), ansi.Reset, title)
-	
+
 	if card.Contents != "" {
 		fmt.Print(yellow + " \u2261" + ansi.Reset)
 	}
@@ -38,7 +38,7 @@ func List(card cardcabinet.Card, config config.Config) {
 
 func Cat(card cardcabinet.Card, config config.Config) {
 	columns := ansi.GetColumns()
-	
+
 	fmt.Println(darkgray + "\u250c" + fill("\u2500", columns-2) + ansi.Reset)
 	fmt.Println(darkgray + "\u2502 " + yellow + card.Name + ansi.Reset)
 	fmt.Println(darkgray + "\u251c" + fill("\u2500", columns-2) + ansi.Reset)

@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"path/filepath"
 	"github.com/jedthehumanoid/cardcabinet"
 	"github.com/spf13/cobra"
+	"path/filepath"
 )
 
 func init() {
@@ -23,7 +23,7 @@ var boardsCmd = &cobra.Command{
 
 func boards(args []string) {
 	if len(args) == 0 {
-		args = []string{filepath.Clean(".")+"/"}
+		args = []string{filepath.Clean(".") + "/"}
 	}
 
 	boards := []cardcabinet.Board{}

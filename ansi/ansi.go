@@ -1,9 +1,9 @@
 package ansi
 
 import (
-	"strconv"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 )
 
