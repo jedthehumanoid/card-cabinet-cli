@@ -53,7 +53,7 @@ func props(args []string) {
 		}
 		boardcards := cardcabinet.ReadCards(b.Path(), recursive)
 		for _, deck := range b.Decks {
-			cards = append(cards, deck.Get(boardcards)...)
+			cards = append(cards, deck.FilterCards(boardcards)...)
 		}
 	}
 

@@ -38,10 +38,12 @@ func ls(args []string) {
 
 	if fi.Mode().IsDir() {
 		cards := cardcabinet.ReadCards(args[0], recursive)
-		for _, card := range cardcabinet.QueryCards(cards, query) {
-			view.List(card, cfg)
+		// Map(Cards)
+		for _, card := range cards {
+			if card.Match(query) {
+				view.List(card, cfg)
+			}
 		}
-		fmt.Println()
 	} else if strings.HasSuffix(args[0], ".board.toml") {
 		b, err := cardcabinet.ReadBoard(args[0])
 		if err != nil {
@@ -50,14 +52,18 @@ func ls(args []string) {
 		}
 		listboard(b, cfg)
 	}
+	fmt.Println()
 }
 
 func listboard(b cardcabinet.Board, config config.Config) {
 	cards := cardcabinet.ReadCards(b.Path(), recursive)
 	for _, deck := range b.Decks {
 		fmt.Printf("[%s]\n", deck.Name)
-		for _, card := range cardcabinet.QueryCards(deck.Get(cards), query) {
-			view.List(card, config)
+		// Map(cards)
+		for _, card := range deck.FilterCards(cards) {
+			if card.Match(query) {
+				view.List(card, config)
+			}
 		}
 		fmt.Println()
 	}

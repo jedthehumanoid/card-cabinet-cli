@@ -18,10 +18,14 @@ func List(card cardcabinet.Card, config config.Config) {
 	title := slug.From(strings.TrimPrefix(card.Name, card.Path()))
 	title = strings.ToUpper(title[:1]) + title[1:]
 	title = strings.TrimSuffix(title, ".md")
-	fmt.Printf("%s%s%s %s", gray, card.Path(), ansi.Reset, title)
+
+	if card.Path() != "" {
+		fmt.Printf("%s%s%s ", gray, card.Path(), ansi.Reset)
+	}
+	fmt.Printf("%s", title)
 
 	if card.Contents != "" {
-		fmt.Print(yellow + " \u2261" + ansi.Reset)
+		fmt.Printf("%s%s%s", yellow, " \u2261", ansi.Reset)
 	}
 
 	for _, label := range asStringSlice(card.Properties["labels"]) {

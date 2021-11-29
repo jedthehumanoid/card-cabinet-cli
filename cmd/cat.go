@@ -39,8 +39,10 @@ func cat(args []string) {
 
 	if fi.Mode().IsDir() {
 		cards := cardcabinet.ReadCards(args[0], recursive)
-		for _, card := range cardcabinet.QueryCards(cards, query) {
-			view.List(card, cfg)
+		for _, card := range cards {
+			if card.Match(query) {
+				view.Cat(card, cfg)
+			}
 		}
 		fmt.Println()
 	} else if strings.HasSuffix(args[0], ".board.toml") {
@@ -57,8 +59,10 @@ func catboard(b cardcabinet.Board, config config.Config) {
 	cards := cardcabinet.ReadCards(b.Path(), recursive)
 	for _, deck := range b.Decks {
 		fmt.Printf("[%s]\n", deck.Name)
-		for _, card := range cardcabinet.QueryCards(deck.Get(cards), query) {
-			view.Cat(card, config)
+		for _, card := range deck.FilterCards(cards) {
+			if card.Match(query) {
+				view.Cat(card, config)
+			}
 		}
 		fmt.Println()
 	}
